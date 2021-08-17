@@ -11,8 +11,6 @@ from functools import wraps
 # creates Flask object
 app = Flask(__name__)
 # configuration
-# NEVER HARDCODE YOUR CONFIGURATION IN YOUR CODE
-# INSTEAD CREATE A .env FILE AND STORE IN IT
 app.config['SECRET_KEY'] = 'your secret key'
 # database name
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Database.db'

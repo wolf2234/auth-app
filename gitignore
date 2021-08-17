@@ -1,1 +1,3 @@
-
+*.db
+*pycache
+.idea/

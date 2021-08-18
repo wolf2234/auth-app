@@ -131,7 +131,7 @@ def delete_user(current_user):
        db.session.delete(user)
        db.session.commit()
        # returns 202 if user deleted
-       return make_response('User was successfully deleted !!', 202)
+       return make_response('User was successfully deleted !!', 204)
 
 # User Database Route
 # this route sends back list of users users
@@ -175,10 +175,10 @@ def login():
        .first()
 
    if not user:
-       # returns 401 if user does not exist
+       # returns 404 if user does not exist
        return make_response(
            'Could not verify',
-           401,
+           404,
            {'WWW-Authenticate': 'Basic realm ="User does not exist !!"'}
        )
 
@@ -197,7 +197,7 @@ def login():
    # returns 403 if password is wrong
    return make_response(
        'Could not verify',
-       403,
+       401,
        {'WWW-Authenticate': 'Basic realm ="Wrong Password !!"'}
    )
 
@@ -230,8 +230,8 @@ def signup():
 
        return make_response('Successfully registered.', 201)
    else:
-       # returns 202 if user already exists
-       return make_response('User already exists. Please Log in.', 202)
+       # returns 401 if user already exists
+       return make_response('User already exists. Please Log in.', 401)
 
 
 if __name__ == "__main__":

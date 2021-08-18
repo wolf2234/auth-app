@@ -104,7 +104,7 @@ def edit_user(current_user):
        .first()
 
    if not user:
-       return make_response('User does not exist !!', 401)
+       return make_response('User does not exist !!', 404)
    else:
        user.name = name
        user.email = email
@@ -125,7 +125,7 @@ def delete_user(current_user):
        .first()
 
    if not user:
-       return make_response('User does not exist !!', 401)
+       return make_response('User does not exist !!', 404)
    else:
        # delete user
        db.session.delete(user)
@@ -177,7 +177,7 @@ def login():
    if not user:
        # returns 404 if user does not exist
        return make_response(
-           'Could not verify',
+           'Invalid username or password',
            404,
            {'WWW-Authenticate': 'Basic realm ="User does not exist !!"'}
        )
@@ -194,10 +194,10 @@ def login():
        }, app.config['SECRET_KEY'])
 
        return make_response(jsonify({'access_token': access_token.decode('UTF-8'), 'refresh_token': refresh_token.decode('UTF-8')}), 200)
-   # returns 403 if password is wrong
+   # returns 409 if password is wrong
    return make_response(
        'Could not verify',
-       401,
+       400,
        {'WWW-Authenticate': 'Basic realm ="Wrong Password !!"'}
    )
 
@@ -231,7 +231,7 @@ def signup():
        return make_response('Successfully registered.', 201)
    else:
        # returns 401 if user already exists
-       return make_response('User already exists. Please Log in.', 401)
+       return make_response('User already exists. Please Log in.', 400)
 
 
 if __name__ == "__main__":

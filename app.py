@@ -112,7 +112,7 @@ def edit_user(current_user):
        # returns 202 if user edit
        return make_response('User was successfully edit !!', 202)
 
-@app.route('/delete', methods=['DELETE'])
+@app.route('/delete_user', methods=['DELETE'])
 @token_required
 def delete_user(current_user):
    # creates a dictionary of the form data

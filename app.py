@@ -21,140 +21,223 @@ db = SQLAlchemy(app)
 
 # Database ORMs
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    public_id = db.Column(db.String(50), unique=True)
-    name = db.Column(db.String(100))
-    email = db.Column(db.String(70), unique=True)
-    password = db.Column(db.String(80))
+   id = db.Column(db.Integer, primary_key=True)
+   public_id = db.Column(db.String(50), unique=True)
+   name = db.Column(db.String(100))
+   email = db.Column(db.String(70), unique=True)
+   password = db.Column(db.String(80))
 
 
 # decorator for verifying the JWT
 def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-        # jwt is passed in the request header
-        if 'x-access-token' in request.headers:
-            token = request.headers['x-access-token']
-        # return 401 if token is not passed
-        if not token:
-            return jsonify({'message': 'Token is missing !!'}), 401
+   @wraps(f)
+   def decorated(*args, **kwargs):
+       access_token = None
+       # jwt is passed in the request header
+       if 'x-access-token' in request.headers:
+           access_token = request.headers['x-access-token']
 
-        try:
-            # decoding the payload to fetch the stored details
-            data = jwt.decode(token, app.config['SECRET_KEY'])
-            current_user = User.query \
-                .filter_by(public_id=data['public_id']) \
-                .first()
-        except:
-            return jsonify({
-                'message': 'Token is invalid !!'
-            }), 401
-        # returns the current logged in users contex to the routes
-        return f(current_user, *args, **kwargs)
+       # return 401 if token is not passed
+       if not access_token:
+           return jsonify({'message': 'Access token is missing !!'}), 401
 
-    return decorated
+       try:
+           # decoding the payload to fetch the stored details
+           data = jwt.decode(access_token, app.config['SECRET_KEY'])
+           current_user = User.query \
+               .filter_by(public_id=data['public_id']) \
+               .first()
+       except:
+           return jsonify({
+               'message': 'Access token is invalid !!'
+           }), 401
+       # returns the current logged in users contex to the routes
+       return f(current_user, *args, **kwargs)
 
+   return decorated
+
+@app.route('/refresh_token', methods=['POST'])
+def refresh_token():
+   refresh_token = None
+
+   if 'x-refresh-token' in request.headers:
+       refresh_token = request.headers['x-refresh-token']
+
+   if not refresh_token:
+       return jsonify({'message': 'Refresh token is missing !!'}), 401
+
+   try:
+       # decoding the payload to fetch the stored details
+       data = jwt.decode(refresh_token, app.config['SECRET_KEY'])
+       user_current = User.query \
+           .filter_by(public_id=data['public_id']) \
+           .first()
+       if user_current.public_id == data['public_id']:
+           a_token = jwt.encode({
+               'public_id': user_current.public_id,
+               'exp': datetime.utcnow() + timedelta(minutes=5)
+           }, app.config['SECRET_KEY'])
+           r_token = jwt.encode({
+               'public_id': user_current.public_id,
+               'exp': datetime.utcnow() + timedelta(days=7)
+           }, app.config['SECRET_KEY'])
+
+           return make_response(
+               jsonify({'access_token': a_token.decode('UTF-8'), 'refresh_token': r_token.decode('UTF-8')}),
+               200)
+   except:
+       return jsonify({
+           'message': 'Refresh token is invalid !!'
+       }), 401
+
+@app.route('/edit_user', methods=['PUT'])
+@token_required
+def edit_user(current_user):
+   data = request.form
+
+   user_id = data.get('public_id')
+   name = data.get('name')
+   email = data.get('email')
+
+   user = User.query \
+       .filter_by(public_id=user_id) \
+       .first()
+
+   if not user:
+       return make_response('User does not exist !!', 401)
+   else:
+       user.name = name
+       user.email = email
+       db.session.commit()
+       # returns 202 if user edit
+       return make_response('User was successfully edit !!', 202)
+
+@app.route('/delete', methods=['DELETE'])
+@token_required
+def delete_user(current_user):
+   # creates a dictionary of the form data
+   data = request.form
+   # gets email
+   user_id = data.get('public_id')
+
+   user = User.query \
+       .filter_by(public_id=user_id) \
+       .first()
+
+   if not user:
+       return make_response('User does not exist !!', 401)
+   else:
+       # delete user
+       db.session.delete(user)
+       db.session.commit()
+       # returns 202 if user deleted
+       return make_response('User was successfully deleted !!', 202)
 
 # User Database Route
 # this route sends back list of users users
 @app.route('/user', methods=['GET'])
 @token_required
 def get_all_users(current_user):
-    # querying the database
-    # for all the entries in it
-    users = User.query.all()
-    # converting the query objects
-    # to list of jsons
-    output = []
-    for user in users:
-        # appending the user data json
-        # to the response list
-        output.append({
-            'public_id': user.public_id,
-            'name': user.name,
-            'email': user.email
-        })
+   # querying the database
+   # for all the entries in it
+   users = User.query.all()
+   # converting the query objects
+   # to list of jsons
+   output = []
+   for user in users:
+       # appending the user data json
+       # to the response list
+       output.append({
+           'public_id': user.public_id,
+           'name': user.name,
+           'email': user.email
+       })
 
-    return jsonify({'users': output})
+   return jsonify({'users': output})
 
 
 # route for loging user in
 @app.route('/login', methods=['POST'])
 def login():
-    # creates dictionary of form data
-    auth = request.form
+   # creates dictionary of form data
+   data = request.form
 
-    if not auth or not auth.get('email') or not auth.get('password'):
-        # returns 401 if any email or / and password is missing
-        return make_response(
-            'Could not verify',
-            401,
-            {'WWW-Authenticate': 'Basic realm ="Login required !!"'}
-        )
+   if not data or not data.get('email') or not data.get('password'):
+       # returns 401 if any email or / and password is missing
+       return make_response(
+           'Could not verify',
+           401,
+           {'WWW-Authenticate': 'Basic realm ="Login required !!"'}
+       )
 
-    user = User.query \
-        .filter_by(email=auth.get('email')) \
-        .first()
+   user = User.query \
+       .filter_by(email=data.get('email')) \
+       .first()
 
-    if not user:
-        # returns 401 if user does not exist
-        return make_response(
-            'Could not verify',
-            401,
-            {'WWW-Authenticate': 'Basic realm ="User does not exist !!"'}
-        )
+   if not user:
+       # returns 401 if user does not exist
+       return make_response(
+           'Could not verify',
+           401,
+           {'WWW-Authenticate': 'Basic realm ="User does not exist !!"'}
+       )
 
-    if check_password_hash(user.password, auth.get('password')):
-        # generates the JWT Token
-        token = jwt.encode({
-            'public_id': user.public_id,
-            'exp': datetime.utcnow() + timedelta(minutes=30)
-        }, app.config['SECRET_KEY'])
+   if check_password_hash(user.password, data.get('password')):
+       # generates the JWT Tokens
+       access_token = jwt.encode({
+           'public_id': user.public_id,
+           'exp': datetime.utcnow() + timedelta(minutes=5)
+       }, app.config['SECRET_KEY'])
+       refresh_token = jwt.encode({
+           'public_id': user.public_id,
+           'exp': datetime.utcnow() + timedelta(days=7)
+       }, app.config['SECRET_KEY'])
 
-        return make_response(jsonify({'token': token.decode('UTF-8')}), 201)
-    # returns 403 if password is wrong
-    return make_response(
-        'Could not verify',
-        403,
-        {'WWW-Authenticate': 'Basic realm ="Wrong Password !!"'}
-    )
+       return make_response(jsonify({'access_token': access_token.decode('UTF-8'), 'refresh_token': refresh_token.decode('UTF-8')}), 200)
+   # returns 403 if password is wrong
+   return make_response(
+       'Could not verify',
+       403,
+       {'WWW-Authenticate': 'Basic realm ="Wrong Password !!"'}
+   )
 
 
 # signup route
 @app.route('/signup', methods=['POST'])
 def signup():
-    # creates a dictionary of the form data
-    data = request.form
+   # creates a dictionary of the form data
+   data = request.form
 
-    # gets name, email and password
-    name, email = data.get('name'), data.get('email')
-    password = data.get('password')
+   # gets name, email and password
+   name, email = data.get('name'), data.get('email')
+   password = data.get('password')
 
-    # checking for existing user
-    user = User.query \
-        .filter_by(email=email) \
-        .first()
-    if not user:
-        # database ORM object
-        user = User(
-            public_id=str(uuid.uuid4()),
-            name=name,
-            email=email,
-            password=generate_password_hash(password)
-        )
-        # insert user
-        db.session.add(user)
-        db.session.commit()
+   # checking for existing user
+   user = User.query \
+       .filter_by(email=email) \
+       .first()
+   if not user:
+       # database ORM object
+       user = User(
+           public_id=str(uuid.uuid4()),
+           name=name,
+           email=email,
+           password=generate_password_hash(password)
+       )
+       # insert user
+       db.session.add(user)
+       db.session.commit()
 
-        return make_response('Successfully registered.', 201)
-    else:
-        # returns 202 if user already exists
-        return make_response('User already exists. Please Log in.', 202)
+       return make_response('Successfully registered.', 201)
+   else:
+       # returns 202 if user already exists
+       return make_response('User already exists. Please Log in.', 202)
 
 
 if __name__ == "__main__":
-    # setting debug to True enables hot reload
-    # and also provides a debuger shell
-    # if you hit an error while running the server
-    app.run(debug=True)
+   # setting debug to True enables hot reload
+   # and also provides a debuger shell
+   # if you hit an error while running the server
+   app.run(debug=True)
+
+

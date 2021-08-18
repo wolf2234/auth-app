@@ -56,7 +56,7 @@ def token_required(f):
 
    return decorated
 
-@app.route('/refresh_token', methods=['POST'])
+@app.route('/user/refresh_token', methods=['POST'])
 def refresh_token():
    refresh_token = None
 
@@ -90,7 +90,7 @@ def refresh_token():
            'message': 'Refresh token is invalid !!'
        }), 401
 
-@app.route('/edit_user', methods=['PUT'])
+@app.route('/user/edit_user', methods=['PUT'])
 @token_required
 def edit_user(current_user):
    data = request.form
@@ -112,7 +112,7 @@ def edit_user(current_user):
        # returns 202 if user edit
        return make_response('User was successfully edit !!', 202)
 
-@app.route('/delete_user', methods=['DELETE'])
+@app.route('/user/delete_user', methods=['DELETE'])
 @token_required
 def delete_user(current_user):
    # creates a dictionary of the form data
@@ -135,7 +135,7 @@ def delete_user(current_user):
 
 # User Database Route
 # this route sends back list of users users
-@app.route('/user', methods=['GET'])
+@app.route('/user/get_users', methods=['GET'])
 @token_required
 def get_all_users(current_user):
    # querying the database
@@ -157,7 +157,7 @@ def get_all_users(current_user):
 
 
 # route for loging user in
-@app.route('/login', methods=['POST'])
+@app.route('/user/login', methods=['POST'])
 def login():
    # creates dictionary of form data
    data = request.form
@@ -203,7 +203,7 @@ def login():
 
 
 # signup route
-@app.route('/signup', methods=['POST'])
+@app.route('/user/signup', methods=['POST'])
 def signup():
    # creates a dictionary of the form data
    data = request.form
@@ -239,5 +239,3 @@ if __name__ == "__main__":
    # and also provides a debuger shell
    # if you hit an error while running the server
    app.run(debug=True)
-
-

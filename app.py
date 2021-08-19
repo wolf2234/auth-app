@@ -131,7 +131,7 @@ def delete_user(current_user):
        db.session.delete(user)
        db.session.commit()
        # returns 202 if user deleted
-       return make_response('User was successfully deleted !!', 204)
+       return make_response('User was successfully deleted !!', 200)
 
 # User Database Route
 # this route sends back list of users users

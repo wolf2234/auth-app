@@ -1,0 +1,467 @@
+{
+ "openapi": "3.0.0",
+ "info": {
+   "description": "sean",
+   "version": "1.0.0",
+   "title": "Authentication-Flask-Rest-API",
+   "license": {
+     "name": "MIT",
+     "url": "https://opensource.org/licenses/MIT"
+   }
+ },
+ "servers": [
+   {
+     "url": "/"
+   }
+ ],
+ "tags": [
+   {
+     "name": "Authentication",
+     "description": "Example API for requesting and return book requests"
+   }
+ ],
+ "paths": {
+   "/users/signup/": {
+     "post": {
+       "tags": [
+         "Authentication"
+       ],
+       "summary": "Registration user",
+       "parameters": [
+         {
+           "name": "name",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "email",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "password",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/users/login/": {
+     "post": {
+       "tags": [
+         "Authentication"
+       ],
+       "summary": "login user",
+       "parameters": [
+         {
+           "name": "email",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "password",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/users/refresh_token/": {
+     "post": {
+       "tags": [
+         "Authentication"
+       ],
+       "summary": "Get refresh tokens",
+       "parameters": [
+         {
+           "name": "x-refresh-token",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/course/add/": {
+     "post": {
+       "tags": [
+         "Subscription course"
+       ],
+       "summary": "Add course",
+       "parameters": [
+         {
+           "name": "x-access-token",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "title",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "description",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "video",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/course/subscribe/": {
+     "post": {
+       "tags": [
+         "Subscription course"
+       ],
+       "summary": "Subscribe on course",
+       "parameters": [
+         {
+           "name": "x-access-token",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "title",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/course/unsubscribe/": {
+     "post": {
+       "tags": [
+         "Subscription course"
+       ],
+       "summary": "Unsubscribe from course",
+       "parameters": [
+         {
+           "name": "x-access-token",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "title",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/users/get/": {
+     "get": {
+       "tags": [
+         "Authentication"
+       ],
+       "summary": "Returns users",
+       "parameters": [
+         {
+           "name": "x-access-token",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/users/user/": {
+     "get": {
+       "tags": [
+         "Authentication"
+       ],
+       "summary": "Returns user",
+       "parameters": [
+         {
+           "name": "public_id",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "x-access-token",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "produces": [
+         "application/json"
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/users/me/": {
+     "get": {
+       "tags": [
+         "Authentication"
+       ],
+       "summary": "Returns me",
+       "parameters": [
+         {
+           "name": "x-access-token",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/course/get/": {
+     "get": {
+       "tags": [
+         "Subscription course"
+       ],
+       "summary": "Returns courses",
+       "parameters": [
+         {
+           "name": "x-access-token",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/users/edit/": {
+     "put": {
+       "tags": [
+         "Authentication"
+       ],
+       "summary": "Edit user",
+       "parameters": [
+         {
+           "name": "x-access-token",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "name",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "email",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "password",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/course/edit/": {
+     "put": {
+       "tags": [
+         "Subscription course"
+       ],
+       "summary": "Edit user",
+       "parameters": [
+         {
+           "name": "x-access-token",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "title",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "description",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "id",
+           "type": "integer",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/users/delete/": {
+     "delete": {
+       "tags": [
+         "Authentication"
+       ],
+       "summary": "Delete user",
+       "parameters": [
+         {
+           "name": "x-access-token",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   },
+   "/course/delete/": {
+     "delete": {
+       "tags": [
+         "Subscription course"
+       ],
+       "summary": "Delete course",
+       "parameters": [
+         {
+           "name": "x-access-token",
+           "type": "string",
+           "in": "header",
+           "required": true
+         },
+         {
+           "name": "title",
+           "type": "string",
+           "in": "header",
+           "required": true
+         }
+       ],
+       "responses": {
+         "200": {
+           "description": "OK"
+         }
+       }
+     }
+   }
+ },
+ "components": {
+   "schemas": {
+     "Name": {
+       "type": "object",
+       "properties": {
+         "name": {
+           "type": "string",
+           "format": "name"
+         }
+       }
+     },
+     "Email": {
+       "type": "object",
+       "properties": {
+         "email": {
+           "type": "string",
+           "format": "email"
+         }
+       }
+     },
+     "Password": {
+       "type": "object",
+       "properties": {
+         "password": {
+           "type": "integer",
+           "format": "number"
+         }
+       }
+     },
+     "Access Token": {
+       "type": "object",
+       "properties": {
+         "token": {
+           "type": "string",
+           "format": "token"
+         }
+       }
+     },
+     "Refresh Token": {
+       "type": "object",
+       "properties": {
+         "token": {
+           "type": "string",
+           "format": "token"
+         }
+       }
+     }
+   }
+ }
+}

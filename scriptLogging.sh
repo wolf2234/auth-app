@@ -30,7 +30,7 @@ then
     echo "`date "+%d/%m/%Y   %H:%M:%S"`   $cpuuse%  $pct%" >> $path_name/file.log
     echo "" >> $path_name/file.log
     echo "             Processes" >> $path_name/file.log
-    echo "$(ps -F)" >> $path_name/file.log
+    echo "$(ps -eF)" >> $path_name/file.log
     echo "+------------------------------------------------------------------+" >> $path_name/file.log
     sleep 300  # Information is recorded every 5 minutes
   done
